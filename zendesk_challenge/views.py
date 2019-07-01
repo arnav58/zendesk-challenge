@@ -10,14 +10,11 @@ from google import google
 import gensim
 from gensim import corpora
 
-df = pd.read_csv(os.path.join(settings.BASE_DIR, 'zendesk_challenge.tsv'), sep='\t', encoding='cp1252')
-num_page = 1
-sw = set(stopwords.words('english'))
-exclude = set(string.punctuation)
-lemma = WordNetLemmatizer()
-
 
 def clean(doc):
+    sw = set(stopwords.words('english'))
+    exclude = set(string.punctuation)
+    lemma = WordNetLemmatizer()
     stop_free = " ".join([i for i in doc.lower().split() if i not in sw])
     punc_free = ''.join(ch for ch in stop_free if ch not in exclude)
     normalized = " ".join(lemma.lemmatize(word) for word in punc_free.split())
@@ -25,6 +22,8 @@ def clean(doc):
 
 
 def calculate_cosine_distance(result, answer):
+
+    sw = set(stopwords.words('english'))
 
     result_list = word_tokenize(result)
     answer_list = word_tokenize(answer)
@@ -61,6 +60,10 @@ def calculate_cosine_distance(result, answer):
 def write_results():
     import csv
 
+    df = pd.read_csv(os.path.join(settings.BASE_DIR, 'zendesk_challenge.tsv'), sep='\t', encoding='cp1252')
+    num_page = 1
+    sw = set(stopwords.words('english'))
+
     with open(os.path.join(settings.BASE_DIR, 'results.csv'), mode='w', newline='') as results_file:
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
@@ -89,9 +92,14 @@ def write_results():
 
 
 def topical_analysis():
+    from nltk.corpus import stopwords
+
+    sw = set(stopwords.words('english'))
+    df = pd.read_csv(os.path.join(settings.BASE_DIR, 'zendesk_challenge.tsv'), sep='\t', encoding='cp1252')
     from matplotlib import pyplot as plt
-    from wordcloud import WordCloud, STOPWORDS
+    from wordcloud import WordCloud
     import matplotlib.colors as mcolors
+
 
     stopwords = list(sw)
     stopwords.extend(
