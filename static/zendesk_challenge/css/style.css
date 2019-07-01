@@ -1,0 +1,22 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400
+}
+
+.wrapper {
+    width: 800px;
+    margin: 0 auto;
+    margin-top: 80px;
+}
+
+.heading {
+    text-align: center;
+}
+
+.content div {
+    margin-top: 20px;
+}
+
+.content div:first-child {
+    margin-top: 48px;
+}

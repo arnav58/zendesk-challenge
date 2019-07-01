@@ -2,8 +2,6 @@ from django.shortcuts import render
 import pandas as pd
 import os
 from django.conf import settings
-from bs4 import BeautifulSoup
-import requests
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from google import google
@@ -15,18 +13,6 @@ sw = set(stopwords.words('english'))
 
 
 def calculate_cosine_distance(result, answer):
-    # page = requests.get("https://www.google.com/search?q={}".format("how much is 1 tablespoon of water"))
-    # soup = BeautifulSoup(page.content, "html5lib")
-
-    # print(soup)
-    # subdf = df.head(10)
-    # print(len(list(set(df['Question']))))
-    #
-    # search_results = google.search("how are glacier caves formed?", num_page)
-    #
-    # result = search_results[0].description
-    # result = result.split('.')[0].lower()
-    # answer = "The ice facade is approximately 60 m high".lower()
 
     result_list = word_tokenize(result)
     answer_list = word_tokenize(answer)
@@ -63,17 +49,15 @@ def calculate_cosine_distance(result, answer):
 def write_results():
     import csv
 
-    with open(os.path.join(settings.BASE_DIR, 'results.csv'), mode='a', newline='') as results_file:
+    with open(os.path.join(settings.BASE_DIR, 'results.csv'), mode='w', newline='') as results_file:
         results_writer = csv.writer(results_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         header = ['QuestionID', 'Question', 'DocumentID', 'DocumentTitle',
                   'SentenceID', 'Sentence', 'Label', 'Cosine Similarity']
 
-        # results_writer.writerow(header)
+        results_writer.writerow(header)
 
         for i, row in df.iterrows():
-            if i < 18946:
-                continue
             if row['Label'] == 1:
                 try:
                     search_results = google.search(row['Question'], num_page)
@@ -94,28 +78,45 @@ def write_results():
 
 def index(request):
 
-    context = {
-        'title': 'Latest Posts'
+    similarity_df = pd.read_csv(os.path.join(settings.BASE_DIR, 'results.csv'), sep=',', encoding='cp1252')
+
+    similarity_range_data = {
+        "0-10": 0,
+        "10-20": 0,
+        "20-30": 0,
+        "30-40": 0,
+        "40-50": 0,
+        "50-60": 0,
+        "60-70": 0,
+        "70-80": 0,
+        "80-90": 0,
+        "90-100": 0
     }
 
-    with open(os.path.join(settings.BASE_DIR, 'results.txt'), 'w') as resultsPipe:
-        for index, row in df.iterrows():
-            if row['Label'] == 1:
-                try:
-                    search_results = google.search(row['Question'], num_page)
+    for i, row in similarity_df.iterrows():
+        if 0 <= row['Cosine Similarity'] < 0.1:
+            similarity_range_data["0-10"] += 1
+        elif 0.1 <= row['Cosine Similarity'] < 0.2:
+            similarity_range_data["10-20"] += 1
+        elif 0.2 <= row['Cosine Similarity'] < 0.3:
+            similarity_range_data["20-30"] += 1
+        elif 0.3 <= row['Cosine Similarity'] < 0.4:
+            similarity_range_data["30-40"] += 1
+        elif 0.4 <= row['Cosine Similarity'] < 0.5:
+            similarity_range_data["40-50"] += 1
+        elif 0.5 <= row['Cosine Similarity'] < 0.6:
+            similarity_range_data["50-60"] += 1
+        elif 0.6 <= row['Cosine Similarity'] < 0.7:
+            similarity_range_data["60-70"] += 1
+        elif 0.7 <= row['Cosine Similarity'] < 0.8:
+            similarity_range_data["70-80"] += 1
+        elif 0.8 <= row['Cosine Similarity'] < 0.9:
+            similarity_range_data["80-90"] += 1
+        elif 0.9 <= row['Cosine Similarity'] <= 1:
+            similarity_range_data["90-100"] += 1
 
-                    result = search_results[0].description.lower()
-                    answer = row['Sentence'].lower()
-                    temp_array = [row['QuestionID'], row['Question'], row['DocumentID'], row['DocumentTitle'],
-                                             row['SentenceID'], row['Sentence'], row['Label'], playground(result, answer)]
-
-                    line = '\t'.join(str(v) for v in temp_array)
-                    resultsPipe.write(line + '\n')
-
-                    print(result)
-                except IndexError:
-                    continue
-        # #
-        # new_df.to_csv(os.path.join(settings.BASE_DIR, 'results.tsv'), sep='\t')
+    context = {
+        "similarity_data": similarity_range_data
+    }
 
     return render(request, 'zendesk_challenge/index.html', context)
