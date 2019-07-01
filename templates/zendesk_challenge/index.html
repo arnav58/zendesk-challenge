@@ -6,7 +6,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Zendesk Challenge</title>
-    <!-- Roboto Web Font-->
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500,700' rel='stylesheet' type='text/css'>
     <link href='{% static "zendesk_challenge/css/style.css" %}' rel="stylesheet">
 </head>
@@ -19,7 +18,7 @@
                     Arnav is a Master's of Data Science student at Monash University, Melbourne and a B.Tech Information Technology graduate from Manipal Institute of Technology, Karnataka.
                 </div>
                 <div>
-                    With professional experience in Web Development, Android Application Development and Java Backend Development, Arnav is proficient in working with HTML5, CSS3, JavaScript, Angular, ReactJS, Django, d3.js, Highcharts, Java and Android Studios.
+                    With professional experience in Web Development, Android Application Development and Java Backend Development, Arnav is proficient in working with HTML5, CSS3, JavaScript, Angular, ReactJS, Django, d3.js, Highcharts, Java and Android Studios. He also has experience working with cloud services like AWS and Google Cloud.
                 </div>
                 <div>
                     Garnering work experience from the corporate firms of all sizes (BlackRock Services - a leading global asset management firm, Bharti Airtel - a national giant in the telecom industry , Qwikcilver - a mid-sized Amazon-funded gifting solutions company and InLogg - a logistics solution startup), Arnav is a motivated individual driven by the fascination of technology and the urge to make a difference in the technology world.
@@ -29,7 +28,27 @@
                 </div>
             </div>
         </div>
+        <div class="section" style="margin-bottom: 48px;">
+            <div class="heading"><h2>ABOUT THE APPROACH</h2></div>
+            <div class="content">
+                <div>
+                    Looking at the data, it was easy to interpret that it is sourced from a forum where users post questions and seek answers from other users. On a closer look, I was able to infer that the rows with Label '1' were answers which were useful and rows with Label '0' could be overlooked since they did not contain relevant information.
+                </div>
+                <div>
+                    I decided to query Google for each of the questions, which were supposedly correctly answered with useful information, using the <a href="https://github.com/abenassi/Google-Search-API" target="_blank">Google-Search-API</a> library and then calculate the cosine similarity between the answers provided in the document and the results fetched by the google search api.
+                </div>
+                <div>
+                    Using these cosine similarity values, I then classified how accurately were the questions being answered, helping us determine the reliability of the forum answers and the users answering the posts.
+                </div>
+            </div>
+        </div>
         <div id="container" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+        <div class="section">
+            <div class="heading"><h2>FUTURE WORK</h2></div>
+            <div class="content">
+                <div>Given more time, I wanted to do a topical classification on this data and find out what were the most common topics being posted about on the forum by following <a href="https://www.machinelearningplus.com/nlp/topic-modeling-visualization-how-to-present-results-lda-models/" target="_blank">this guide</a>. The code for this modeling is in the <code>topic_modeling()</code> method of the <code>views.py</code> file.</div>
+            </div>
+        </div>
     </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>

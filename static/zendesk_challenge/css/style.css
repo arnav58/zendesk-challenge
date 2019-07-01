@@ -15,8 +15,17 @@ body {
 
 .content div {
     margin-top: 20px;
+    justify-content: center;
 }
 
 .content div:first-child {
     margin-top: 48px;
+}
+
+.section {
+    margin-top: 120px;
+}
+
+.section:first-child {
+    margin-top: 0px;
 }

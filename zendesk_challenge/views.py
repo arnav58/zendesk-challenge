@@ -1,15 +1,27 @@
 from django.shortcuts import render
 import pandas as pd
 import os
+import string
 from django.conf import settings
 from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from google import google
+import gensim
+from gensim import corpora
 
-# Reading the data file
 df = pd.read_csv(os.path.join(settings.BASE_DIR, 'zendesk_challenge.tsv'), sep='\t', encoding='cp1252')
 num_page = 1
 sw = set(stopwords.words('english'))
+exclude = set(string.punctuation)
+lemma = WordNetLemmatizer()
+
+
+def clean(doc):
+    stop_free = " ".join([i for i in doc.lower().split() if i not in sw])
+    punc_free = ''.join(ch for ch in stop_free if ch not in exclude)
+    normalized = " ".join(lemma.lemmatize(word) for word in punc_free.split())
+    return normalized
 
 
 def calculate_cosine_distance(result, answer):
@@ -74,6 +86,59 @@ def write_results():
                     continue
 
         results_file.close()
+
+
+def topical_analysis():
+    from matplotlib import pyplot as plt
+    from wordcloud import WordCloud, STOPWORDS
+    import matplotlib.colors as mcolors
+
+    stopwords = list(sw)
+    stopwords.extend(
+        ['from', 'subject', 're', 'edu', 'use', 'not', 'would', 'say', 'could', '_', 'be', 'know', 'good', 'go', 'get',
+         'do', 'done', 'try', 'many', 'some', 'nice', 'thank', 'think', 'see', 'rather', 'easy', 'easily', 'lot',
+         'lack', 'make', 'want', 'seem', 'run', 'need', 'even', 'right', 'line', 'even', 'also', 'may', 'take', 'come'])
+
+    cols = [color for name, color in mcolors.TABLEAU_COLORS.items()]  # more colors: 'mcolors.XKCD_COLORS'
+
+    cloud = WordCloud(stopwords=stopwords,
+                      background_color='white',
+                      width=2500,
+                      height=1800,
+                      max_words=10,
+                      colormap='tab10',
+                      color_func=lambda *args, **kwargs: cols[i],
+                      prefer_horizontal=1.0)
+
+    Lda = gensim.models.ldamodel.LdaModel
+
+    doc_clean = []
+
+    for i, row in df.iterrows():
+        if row['Label'] == 1:
+            doc_clean.append(clean(row['Question']).split())
+
+    dictionary = corpora.Dictionary(doc_clean)
+    doc_term_matrix = [dictionary.doc2bow(doc) for doc in doc_clean]
+    ldamodel = Lda(doc_term_matrix, num_topics=20, id2word=dictionary, passes=20)
+    # print(ldamodel.print_topics(num_topics=20, num_words=3))
+    topics = ldamodel.show_topics(formatted=False)
+
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10), sharex=True, sharey=True)
+
+    for i, ax in enumerate(axes.flatten()):
+        fig.add_subplot(ax)
+        topic_words = dict(topics[i][1])
+        cloud.generate_from_frequencies(topic_words, max_font_size=300)
+        plt.gca().imshow(cloud)
+        plt.gca().set_title('Topic ' + str(i), fontdict=dict(size=16))
+        plt.gca().axis('off')
+
+    plt.subplots_adjust(wspace=0, hspace=0)
+    plt.axis('off')
+    plt.margins(x=0, y=0)
+    plt.tight_layout()
+    plt.show()
 
 
 def index(request):
