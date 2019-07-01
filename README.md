@@ -1,3 +1,6 @@
+# URLs
+Site deployed on AWS: http://18.222.122.196:8000/
+
 # How to run this project
 
 To run this project, first:
